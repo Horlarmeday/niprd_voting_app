@@ -1,0 +1,149 @@
+<%- include ('../../partials/skeletal') %>
+
+<!-- partial -->
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body" id="create-vote">
+                        <h4 class="card-title">Vote</h4>
+                        <hr>
+                        <div v-show="isStartVote === 'no'" style="padding-bottom: 50px; padding-top: 50px" class="text-center" >
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Phone Number</label>
+                                <input maxlength="11" minlength="11" v-model="phone" type="text" autofocus="true" class="form-control" id="exampleInputUsername1" placeholder="Enter your phone number">
+                            </div>
+                            <button type="button" class="btn btn-info btn-lg" @click="startVote">Start Voting</button>
+                        </div>
+                        <div v-show="isStartVote === 'ongoing'" class="forms-sample">
+                            <h4 class="text-center">Position to Vote For: <span class="text-facebook">{{ positions[positionIndex].name }}</span></h4>
+                            <div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group" v-for="candidate in positions[positionIndex].candidates">
+                                            <div class="form-check form-check-info" >
+                                                <label class="form-check-label">
+                                                    <input type="radio" v-model="candidate_id" :value="candidate.id" @change="getCandidateId(candidate, $event)" class="form-check-input" name="candidatey" id="ExampleRadio3">
+                                                    {{ candidate.name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-light mr-2" @click="prev">Prev</button>
+                            <button class="btn btn-primary float-right" @click="next">{{ positionIndex <= positions.length -2 ? 'Next' : 'Submit' }}</button>
+                        </div>
+
+                        <div v-show="isStartVote === 'end'" style="padding-bottom: 50px; padding-top: 50px" class="text-center">
+                            <h3 class="text-success">That would be all, Thank you for Voting!</h3>
+                            <button type="button" @click="restartVote" class="btn btn-info btn-lg">Vote Again</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- main-panel ends -->
+
+
+<script>
+  Vue.use(Toasted);
+  new Vue({
+    el: '#create-vote',
+    data: {
+      positions: null,
+      votes: [],
+      positionIndex: 0,
+      phone: null,
+      position_id: null,
+      candidate_id: null,
+      isStartVote: 'no',
+      loading: false,
+      createVoteUrl: '/api/votes',
+      getPositionsUrl: '/api/positions'
+    },
+    mounted() {
+      this.getPositions()
+    },
+    methods: {
+      handleError(e) {
+        this.loading = false;
+        this.$toasted.error(e.response.data.message).goAway(5000);
+      },
+
+      handleSuccess(response) {
+        this.name = null
+        this.phone = null
+        this.$toasted.success(response.data.message).goAway(5000)
+        this.isStartVote = 'end'
+      },
+
+      getPositions() {
+        axios.get(this.getPositionsUrl)
+          .then(response => {
+            this.positions = response.data.data
+          })
+          .catch(error => this.handleError(error))
+      },
+
+      getCandidateId(value, event) {
+        if (event.target.checked) {
+          this.candidate_id = value.id
+        }
+      },
+
+      next() {
+        if (this.positionIndex < this.positions.length -1) {
+          if (!this.candidate_id) return this.$toasted.error('Candidate field is required').goAway(5000);
+          this.pushVote()
+          this.clearContent()
+          this.positionIndex++;
+        } else {
+            this.pushVote()
+            this.submitVote()
+        }
+      },
+
+      pushVote() {
+        this.votes.push({
+          phone: this.phone,
+          position_id : this.positions[this.positionIndex].id,
+          candidate_id : this.candidate_id,
+        })
+      },
+
+      clearContent() {
+        this.position_id = null
+        this.candidate_id = null
+      },
+
+      prev() {
+        if (this.positions.length > 0) {
+          this.positionIndex--;
+          this.votes.pop()
+        }
+      },
+
+      restartVote() {
+        this.isStartVote = 'no';
+      },
+
+      startVote() {
+        if (!this.phone) return this.$toasted.error('phone field is required').goAway(5000);
+        if (this.phone.length < 11) return this.$toasted.error('Number cannot be less than 11 digits').goAway(5000);
+        this.isStartVote = 'ongoing'
+      },
+
+      submitVote() {
+        axios.post(this.createVoteUrl, this.votes)
+          .then(response => this.handleSuccess(response))
+          .catch(error => this.handleError(error))
+      }
+    }
+  })
+</script>
+
+<%- include ('../../partials/footer') %>

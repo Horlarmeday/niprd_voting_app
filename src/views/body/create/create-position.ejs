@@ -1,0 +1,57 @@
+<%- include ('../../partials/skeletal') %>
+
+<!-- partial -->
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body" id="position">
+                        <h4 class="card-title">Create Position</h4>
+                        <div class="forms-sample">
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Position</label>
+                                <input v-model="position" type="text" class="form-control" id="exampleInputUsername1" placeholder="Enter name of position">
+                            </div>
+                            <button type="submit" class="btn btn-primary mr-2" @click="createPosition">Submit</button>
+                            <a href="/positions" class="btn btn-light">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- main-panel ends -->
+
+<script>
+    Vue.use(Toasted);
+    new Vue({
+      el: '#position',
+      data: {
+        position: null,
+        loading: false,
+        createPositionUrl: '/api/positions'
+      },
+      methods: {
+        handleError(e) {
+          this.loading = false;
+          this.$toasted.error(e.response.data.message).goAway(5000);
+        },
+
+        handleSuccess(response) {
+          this.position = null
+          this.$toasted.success(response.data.message).goAway(5000)
+        },
+
+        createPosition() {
+          if (!this.position) return this.$toasted.error('Position is required').goAway(5000);
+          axios.post(this.createPositionUrl, { position: this.position })
+          .then(response => this.handleSuccess(response))
+          .catch(error => this.handleError(error))
+        }
+      }
+    })
+</script>
+
+<%- include ('../../partials/footer') %>

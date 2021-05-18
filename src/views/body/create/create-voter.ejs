@@ -1,0 +1,64 @@
+<%- include ('../../partials/skeletal') %>
+<!-- partial -->
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body" id="create-voter">
+                        <h4 class="card-title">Create a Voter</h4>
+                        <div class="forms-sample">
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Name</label>
+                                <input v-model="name" type="text" autofocus="true" class="form-control" id="exampleInputUsername1" placeholder="Enter voter name">
+                            </div>
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Phone</label>
+                                <input v-model="phone" type="text" class="form-control" id="exampleInputEmail1" placeholder="Enter voter phone">
+                            </div>
+                            <button type="submit" class="btn btn-primary mr-2" @click="createVoter">Submit</button>
+                            <a href="/voters" class="btn btn-light">Cancel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- main-panel ends -->
+
+
+<script>
+  Vue.use(Toasted);
+  new Vue({
+    el: '#create-voter',
+    data: {
+      name: null,
+      phone: null,
+      loading: false,
+      createVoterUrl: '/api/voters'
+    },
+    methods: {
+      handleError(e) {
+        this.loading = false;
+        this.$toasted.error(e.response.data.message).goAway(5000);
+      },
+
+      handleSuccess(response) {
+        this.name = null
+        this.phone = null
+        this.$toasted.success(response.data.message).goAway(5000)
+      },
+
+      createVoter() {
+        if (!this.name || !this.phone) return this.$toasted.error('Input fields are required').goAway(5000);
+        const data = { name: this.name, phone: this.phone }
+        axios.post(this.createVoterUrl, data)
+          .then(response => this.handleSuccess(response))
+          .catch(error => this.handleError(error))
+      }
+    }
+  })
+</script>
+
+<%- include ('../../partials/footer') %>
