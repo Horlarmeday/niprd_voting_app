@@ -1,0 +1,103 @@
+<%- include ('../partials/skeletal') %>
+
+<!-- partial -->
+<div class="main-panel">
+    <div class="content-wrapper">
+        <div class="row">
+            <div class="col-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body" id="votes">
+                        <p class="card-title mb-0">List of votes
+                            <a href="/votes/create" class="btn btn-outline-primary btn-md float-right">Add vote</a> </p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-borderless">
+                                <thead>
+                                <tr>
+                                    <th>Name of Voter</th>
+                                    <th>Position</th>
+                                    <th>Candidate Voted For</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody v-for="vote in votes" :key="vote.id">
+                                <tr>
+                                    <td>{{ vote.voter.name }}</td>
+                                    <td>{{ vote.position.name }}</td>
+                                    <td class="font-weight-bold">{{ vote.candidate.name }}</td>
+                                    <td>{{ new Date(vote.createdAt).toDateString() }}</td>
+                                    <td class="font-weight-medium"><div class="badge badge-success">Completed</div></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <p>
+                                Showing {{ pageSize }} of {{ rows }} entries
+                            </p>
+                            <div class="btn-group mt-3 float-right" role="group" aria-label="Basic example">
+                                <button :disabled="isPreviousButtonDisabled" @click="pageChangeHandle('previous')" type="button" class="btn btn-outline-secondary">Prev</button>
+                                <button :disabled="isNextButtonDisabled" @click="pageChangeHandle('next')" type="button" class="btn btn-outline-secondary">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- content-wrapper ends -->
+</div>
+<!-- main-panel ends -->
+<script>
+  Vue.use(Toasted);
+  new Vue({
+    el: '#votes',
+    data: {
+      votes: [],
+      currentPage: 1,
+      pageLimit: 10,
+      rows: null,
+      pageSize: null,
+      pageCount: null,
+      getVotesUrl: '/api/votes'
+    },
+    mounted() {
+      this.getVotes();
+    },
+    methods: {
+      handleError(e) {
+        this.loading = false;
+        this.$toasted.error(e.response.data.message).goAway(5000);
+      },
+
+      getVotes() {
+        axios.get(`${this.getVotesUrl}?currentPage=${this.currentPage}&pageLimit=${this.pageLimit}`)
+          .then(response => {
+            this.votes = response.data.data.docs
+            this.rows = response.data.data.total
+            this.pageSize = response.data.data.docs.length
+            this.pageCount = response.data.data.pages
+          })
+          .catch(error => this.handleError(error))
+      },
+      pageChangeHandle(value) {
+        if (value === 'next') {
+          this.currentPage += 1
+          this.getVotes()
+        } else if (value === 'previous') {
+          this.currentPage -= 1
+          this.getVotes()
+        }
+      },
+    },
+    computed: {
+      isPreviousButtonDisabled() {
+        return this.currentPage === 1
+      },
+      isNextButtonDisabled() {
+        return this.currentPage === this.pageCount
+      }
+    }
+  })
+</script>
+<%- include ('../partials/footer') %>
