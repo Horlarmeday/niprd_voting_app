@@ -1,0 +1,270 @@
+<%- include ('../partials/skeletal') %>
+<!-- partial-body -->
+<div class="main-panel">
+    <div class="content-wrapper" id="dashboard">
+        <div class="row">
+            <div class="col-md-12 grid-margin">
+                <div class="row">
+                    <div class="col-12 col-xl-8 mb-4 mb-xl-0">
+                        <h3 class="font-weight-bold">Welcome!</h3>
+                        <h6 class="font-weight-normal mb-0">All systems are running smoothly!</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card tale-bg">
+                    <div class="card-people mt-auto">
+                        <img src="images/dashboard/people.svg" alt="people">
+                        <div class="weather-info">
+                            <div class="d-flex">
+                                <div>
+                                    <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>31<sup>C</sup></h2>
+                                </div>
+                                <div class="ml-2">
+                                    <h4 class="location font-weight-normal">Bangalore</h4>
+                                    <h6 class="font-weight-normal">India</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 grid-margin transparent">
+                <div class="row">
+                    <div class="col-md-6 mb-4 stretch-card transparent">
+                        <div class="card card-tale">
+                            <div class="card-body">
+                                <p class="mb-4">Total Votes Casted</p>
+                                <p class="fs-30 mb-2">{{ metrics.votes_casted }}</p>
+<!--                                <p>10.00% (30 days)</p>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4 stretch-card transparent">
+                        <div class="card card-dark-blue">
+                            <div class="card-body">
+                                <p class="mb-4">Total Eligible Voters</p>
+                                <p class="fs-30 mb-2">{{ metrics.eligible_voters }}</p>
+<!--                                <p>22.00% (30 days)</p>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                        <div class="card card-light-blue">
+                            <div class="card-body">
+                                <p class="mb-4">Number of Positions</p>
+                                <p class="fs-30 mb-2">{{ metrics.positions }}</p>
+<!--                                <p>2.00% (30 days)</p>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 stretch-card transparent">
+                        <div class="card card-light-danger">
+                            <div class="card-body">
+                                <p class="mb-4">Number of Voters</p>
+                                <p class="fs-30 mb-2">{{ metrics.voters }}</p>
+<!--                                <p>0.22% (30 days)</p>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 stretch-card grid-margin">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="donut"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <p class="card-title">Candidate Report</p>
+                            <div class="dropdown flex-md-grow-1 flex-xl-grow-0">
+                                <button class="btn btn-sm btn-light bg-white dropdown-toggle" type="button" id="dropdownMenuDate2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    <i class="mdi mdi-calendar"></i> President
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuDate2">
+                                    <button class="dropdown-item" @click="getBarChart(2)">Vice President I</button>
+                                    <button class="dropdown-item" @click="getBarChart(3)">Vice President II</button>
+                                    <button class="dropdown-item" @click="getBarChart(4)">Gen. Secretary</button>
+                                    <button class="dropdown-item" @click="getBarChart(5)">Fin. Secretary</button>
+                                    <button class="dropdown-item" @click="getBarChart(6)">Treasurer</button>
+                                    <button class="dropdown-item" @click="getBarChart(7)">Ass. Fin. Secretary</button>
+                                    <button class="dropdown-item" @click="getBarChart(8)">Ass. Gen. Secretary</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="font-weight-500">The total number of votes per candidate in a position.</p>
+                        <div id="barchart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <p class="card-title mb-0">Results</p>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-borderless">
+                                <thead>
+                                <tr>
+                                    <th>Candidate</th>
+                                    <th>Position</th>
+                                    <th>No of Votes</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody v-for="(vote, index) in aggregatedVotes" :key="index">
+                                    <tr>
+                                        <td>{{ vote.data[0].candidate.name }}</td>
+                                        <td class="font-weight-bold">{{ vote.data[0].position.name }}</td>
+                                        <td>{{ vote.data.length }}</td>
+                                        <td class="font-weight-medium"><div class="badge badge-success">Completed</div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  Vue.use(Toasted);
+  new Vue({
+    el: '#dashboard',
+    data: {
+      metrics: null,
+      aggregatedVotes: null,
+      donutSeries: null,
+      position: null,
+      barChartSeries: null,
+      barChartLoading: false,
+      getDashboardMetricsUrl: '/api/metrics',
+      getAggregatedVotesUrl: '/api/aggregated-votes',
+      getPieChartUrl: '/api/pie-chart-data',
+      getBarChartUrl: '/api/bar-chart-data',
+    },
+    mounted() {
+      this.getDashboardMetrics();
+    },
+    methods: {
+      handleError(e) {
+        this.loading = false;
+        this.$toasted.error(e.response.data.message).goAway(5000);
+      },
+
+      getDashboardMetrics() {
+        axios.get(this.getDashboardMetricsUrl)
+          .then(response => {
+            this.metrics = response.data.data
+            this.getAggregatedVotes()
+          })
+          .catch(error => this.handleError(error))
+      },
+
+      getAggregatedVotes() {
+        axios.get(this.getAggregatedVotesUrl)
+          .then(response => {
+            this.aggregatedVotes = response.data.data
+            this.getDonutChart()
+          })
+          .catch(error => this.handleError(error))
+      },
+
+      getDonutChart() {
+        axios.get(this.getPieChartUrl)
+          .then(response => {
+            this.donutSeries = response.data.data
+            const { pres, vice_pres_1, vice_pres_2, gen_sec, fin_sec, treasurer, ass_gen_sec, ass_fin_sec } = this.donutSeries
+            const colors = [
+              '#5D78FF',
+              '#FF4560',
+              '#FEB019',
+              '#2995BD',
+              '#BC4B00',
+              '#BC559B',
+              '#0D2BBC',
+              '#2F63BC',
+            ];
+            const options = {
+              chart: {
+                animations: {
+                  enabled: true,
+                  easing: 'easeinout',
+                  speed: 800,
+                  animateGradually: {
+                    enabled: true,
+                    delay: 150
+                  },
+                  dynamicAnimation: {
+                    enabled: true,
+                    speed: 350
+                  }
+                },
+                type: 'donut'
+              },
+              series: [pres, vice_pres_1, vice_pres_2, gen_sec, fin_sec, treasurer, ass_gen_sec, ass_fin_sec],
+              labels: ['President', 'Vice Pres I', 'Vice Pres. II', 'Gen Secretary', 'Fin Secretary', 'Treasurer', 'Ass. Gen Secretary', 'Ass. Fin Secretary'],
+              colors: colors,
+            }
+            let chart = new ApexCharts(document.querySelector("#donut"), options);
+            chart.render();
+            this.getBarChart(1)
+          })
+          .catch(function (error) {
+            this.handleError(error)
+          })
+      },
+
+      getBarChart(position) {
+        this.barChartLoading = true
+        axios.post(this.getBarChartUrl, { position: position })
+          .then(response => {
+            this.barChartSeries = response.data.data
+            const series = this.barChartSeries.map(vote => vote.number_of_votes);
+            const labels = this.barChartSeries.map(vote => vote.candidate.name);
+            const options = {
+              chart: {
+                type: 'bar'
+              },
+              series: [
+                {
+                  name: 'Number of Votes',
+                  data: series
+                }
+              ],
+              yaxis: {
+                labels: {
+                  formatter: function (value) {
+                    return value;
+                  }
+                },
+              },
+              xaxis: {
+                categories: labels
+              }
+            };
+
+            const chart = new ApexCharts(document.querySelector('#barchart'), options);
+            chart.render()
+            this.barChartLoading = false
+          })
+          .catch(error => this.handleError(error))
+      }
+    }
+  })
+</script>
+<%- include ('../partials/footer') %>
+<!-- main-panel ends body-->
