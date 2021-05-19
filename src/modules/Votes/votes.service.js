@@ -2,7 +2,8 @@
 import {
   createVote,
   dashboardMetrics,
-  getAllVotes, getBarChartData,
+  getAllVotes,
+  getBarChartData,
   getPieChartData,
   getVoteByPositionAndVoter,
   getVotes,
@@ -46,6 +47,9 @@ class VotesService {
     let contestants = '';
 
     const { candidates, name, id } = foundPosition;
+    candidates.sort((a, b) => {
+      return a.id - b.id;
+    });
 
     for (let i = 0; i < candidates.length; i++) {
       contestants += `${candidates[i].id}. ${candidates[i].name}\n`;
@@ -55,7 +59,7 @@ class VotesService {
 
   static async sendResponse(candidates, phoneNumber, position) {
     const response = `CON Position: ${candidates.name}
-        ${candidates.contestants}`;
+    ${candidates.contestants}`;
     await VotersService.setPositionIndex(phoneNumber, position);
 
     return response;

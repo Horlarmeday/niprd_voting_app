@@ -8,7 +8,7 @@ router.get('/votes/create', VotesController.renderCreateVotes);
 // APIs
 router.post('/api/votes', VotesController.createVote);
 router.post('/ussd', VotesController.startVote);
-router.post('/notification', VotesController.startVote);
+router.post('/notification', VotesController.africaTalkingNotification);
 router.get('/api/votes', VotesController.getVotes);
 router.get('/api/metrics', VotesController.dashboardMetrics);
 router.get('/api/aggregated-votes', VotesController.getAggregatedVotes);

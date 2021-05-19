@@ -16,18 +16,7 @@
             <div class="col-md-6 grid-margin stretch-card">
                 <div class="card tale-bg">
                     <div class="card-people mt-auto">
-                        <img src="images/dashboard/people.svg" alt="people">
-                        <div class="weather-info">
-                            <div class="d-flex">
-                                <div>
-                                    <h2 class="mb-0 font-weight-normal"><i class="icon-sun mr-2"></i>31<sup>C</sup></h2>
-                                </div>
-                                <div class="ml-2">
-                                    <h4 class="location font-weight-normal">Bangalore</h4>
-                                    <h6 class="font-weight-normal">India</h6>
-                                </div>
-                            </div>
-                        </div>
+                        <img src="images/dashboard/vote.jpg" alt="people" style="height: 490px">
                     </div>
                 </div>
             </div>
@@ -158,6 +147,9 @@
     },
     mounted() {
       this.getDashboardMetrics();
+      setInterval(() => {
+        this.getDashboardMetrics();
+      }, 30000);
     },
     methods: {
       handleError(e) {
@@ -262,8 +254,11 @@
             this.barChartLoading = false
           })
           .catch(error => this.handleError(error))
-      }
-    }
+      },
+    },
+    beforeDestroy () {
+      clearInterval(this.polling)
+    },
   })
 </script>
 <%- include ('../partials/footer') %>
