@@ -42,50 +42,12 @@ class VotesService {
     return createVote({ voter_id, position_id, candidate_id });
   }
 
-  static getCandidates(positions, index) {
-    let positionIndex = index || 1;
-    if (index) positionIndex = index.position;
-    const foundPosition = positions.find(position => position.id === positionIndex);
-    let contestants = '';
-
-    const { candidates, name, id } = foundPosition;
-    candidates.sort((a, b) => {
-      return a.id - b.id;
-    });
-
-    for (let i = 0; i < candidates.length; i++) {
-      contestants += `${candidates[i].id}. ${candidates[i].name}\n`;
-    }
-    return { name, contestants, id };
-  }
-
-  static async sendResponse(candidates, phoneNumber, position) {
-    const response = `CON Position: ${candidates.name}
-    ${candidates.contestants}`;
-    await VotersService.setPositionIndex(phoneNumber, position);
-
-    return response;
-  }
-
   static async setPositionVotedFor(phoneNumber, position) {
     await VotersService.setPositionIndex(phoneNumber, position);
   }
 
   static sendFirstResponse() {
-    return `CON Welcome to FMSTCTCS e-voting. \n Press * to start voting \n Press 0 to skip a position`;
-  }
-
-  static async verifyVoteInput(input, expectedOptions, voter_id) {
-    const optionExist = expectedOptions.find(opt => opt === input);
-    if (optionExist) return true;
-
-    await Vote.destroy({ force: true, where: { voter_id } });
-    await Index.destroy({ force: true, where: { voter_id } });
-    return `END Oops, wrong input, you have to start again`;
-  }
-
-  static async checkVoteExists(voter_id, position_id) {
-    return getVoteByPositionAndVoter(position_id, voter_id);
+    return `CON Welcome to FMSTCTCS e-voting. \n Press * to start voting`;
   }
 
   static async getVoteCount(voter_id) {
@@ -107,12 +69,7 @@ class VotesService {
     }
 
     return `CON Position: ${name}
-    ${contestants}`;
-  }
-
-  static async getAVoterVotesIds(voter_id) {
-    const votes = await getOneVoterVotes(voter_id);
-    return votes.map(vote => vote.position_id);
+    ${contestants} Press 0 to skip voting for this position`;
   }
 
   static async mapVoterVotes(voter_id) {
