@@ -1,14 +1,16 @@
 /* eslint-disable no-plusplus,camelcase */
 import {
+  aggregatedSurveyData,
   createSurvey,
   createVote,
   dashboardMetrics,
   getAllVotes,
   getBarChartData,
-  getPieChartData,
-  getVoteByPositionAndVoter, getVoterSurveyCount,
+  getPieChartData, getSurveys,
+  getVoteByPositionAndVoter,
+  getVoterSurveyCount,
   getVoterVotes,
-  getVotes,
+  getVotes, searchSurveys,
   searchVotes,
   votesCountFromIndex,
 } from './votes.repository';
@@ -103,45 +105,48 @@ class VotesService {
 
       const position = await this.getRemainingPosition(voter.id);
 
-      if (text === '*') {
-        return this.formatResponse(position);
-      }
+      if (position) {
+        if (text === '*') {
+          return this.formatResponse(position);
+        }
 
-      let input;
+        let input;
 
-      if (text.includes('*')) {
-        const name = text.split('*');
-        const lastIndex = name.length - 1;
-        input = name[lastIndex];
-      }
+        if (text.includes('*')) {
+          const name = text.split('*');
+          const lastIndex = name.length - 1;
+          input = name[lastIndex];
+        }
 
-      if (text === '0' || input === '0') {
-        await VotesService.setPositionVotedFor(phoneNumber, position);
-        return this.formatResponse(position + 1);
-      }
+        if (text === '0' || input === '0') {
+          await VotesService.setPositionVotedFor(phoneNumber, position);
+          return this.formatResponse(position + 1);
+        }
 
-      if (position >= 8) {
+        if (position >= 8) {
+          await this.createVoteUSSD({
+            voter_id: voter.id,
+            position_id: position,
+            candidate_id: +input,
+          });
+          await VotesService.setPositionVotedFor(phoneNumber, position);
+          return `CON Do you support e-voting?\n a. Yes\n b. No \nType and send either a or b`;
+        }
+
+        if (input.toLowerCase() === 'a' || input.toLowerCase() === 'b') {
+          await createSurvey(input, voter.id);
+          return `END Thank you for voting`;
+        }
+
         await this.createVoteUSSD({
           voter_id: voter.id,
           position_id: position,
-          candidate_id: +input,
+          candidate_id: +input || text,
         });
         await VotesService.setPositionVotedFor(phoneNumber, position);
-        return `CON Do you support e-voting?\n a. Yes\n b. No \nType and send either a or b`;
+        return this.formatResponse(position + 1);
       }
-
-      if (input.toLowerCase() === 'a' || input.toLowerCase() === 'b') {
-        await createSurvey(input, voter.id);
-        return `END Thank you for voting`;
-      }
-
-      await this.createVoteUSSD({
-        voter_id: voter.id,
-        position_id: position,
-        candidate_id: +input || text,
-      });
-      await VotesService.setPositionVotedFor(phoneNumber, position);
-      return this.formatResponse(position + 1);
+      return 'END Sorry, End of voting.';
     }
     return 'END Sorry, You are not eligible to vote.';
   }
@@ -165,6 +170,27 @@ class VotesService {
     }
 
     return getVotes();
+  }
+
+  /**
+   * get votes
+   *
+   * @static
+   * @returns {json} json object with votes data
+   * @param body
+   * @memberOf VotersService
+   */
+  static async getSurveys(body) {
+    const { currentPage, pageLimit, search } = body;
+    if (search) {
+      return searchSurveys(+currentPage, +pageLimit, search);
+    }
+
+    if (Object.values(body).length) {
+      return getSurveys(+currentPage, +pageLimit);
+    }
+
+    return getSurveys();
   }
 
   /**
@@ -211,6 +237,17 @@ class VotesService {
   static async getBarChartData(body) {
     const { position } = body;
     return getBarChartData(position);
+  }
+
+  /**
+   * get survey data
+   *
+   * @static
+   * @returns {json} json survey data
+   * @memberOf VotersService
+   */
+  static async getSurveyData() {
+    return aggregatedSurveyData();
   }
 }
 

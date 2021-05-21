@@ -27,6 +27,17 @@ class VotesController {
   }
 
   /**
+   * display surveys
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   */
+  static async renderSurveys(req, res) {
+    res.render('body/survey');
+  }
+
+  /**
    * create vote
    *
    * @static
@@ -124,6 +135,25 @@ class VotesController {
   }
 
   /**
+   * get surveys
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with surveys data
+   */
+  static async getSurveys(req, res, next) {
+    try {
+      const vote = await VotesService.getSurveys(req.query);
+
+      return successResponse(res, 200, 'Data saved', vote);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  /**
    * get votes
    *
    * @static
@@ -178,6 +208,25 @@ class VotesController {
       const data = await VotesService.getBarChartData(req.body);
 
       return successResponse(res, 200, 'Data saved', data);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  /**
+   * survey data
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with survey data
+   */
+  static async getSurveyData(req, res, next) {
+    try {
+      const metrics = await VotesService.getSurveyData();
+
+      return successResponse(res, 200, 'Data retrieved', metrics);
     } catch (e) {
       return next(e);
     }

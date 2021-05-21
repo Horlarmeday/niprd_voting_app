@@ -223,3 +223,62 @@ export async function createSurvey(response, voter_id) {
 export async function getVoterSurveyCount(data) {
   return Survey.count({ where: { voter_id: data } });
 }
+
+/**
+ * search surveys
+ *
+ * @function
+ * @returns {json} json object with surveys data
+ * @param currentPage
+ * @param pageLimit
+ * @param search
+ */
+export async function searchSurveys(currentPage = 1, pageLimit = 10, search) {
+  return Survey.paginate({
+    page: currentPage,
+    paginate: pageLimit,
+    order: [['createdAt', 'DESC']],
+    include: [
+      {
+        model: Voter,
+        as: 'voter',
+        where: {
+          name: {
+            [Op.like]: `%${search}%`,
+          },
+        },
+      },
+    ],
+  });
+}
+
+/**
+ * get surveys
+ *
+ * @function
+ * @returns {json} json object with surveys data
+ * @param currentPage
+ * @param pageLimit
+ */
+export async function getSurveys(currentPage = 1, pageLimit = 10) {
+  return Survey.paginate({
+    page: currentPage,
+    paginate: pageLimit,
+    order: [['createdAt', 'DESC']],
+    include: [{ model: Voter, as: 'voter' }],
+  });
+}
+
+/**
+ * get survey data
+ * @function
+ * @returns {json} json pie chart data
+ */
+export async function aggregatedSurveyData() {
+  const [positiveResponses, negativeResponses, totalResponses] = await Promise.all([
+    Survey.count({ where: { response: 'a' } }),
+    Survey.count({ where: { response: 'b' } }),
+    Survey.count(),
+  ]);
+  return { positiveResponses, negativeResponses, totalResponses };
+}
