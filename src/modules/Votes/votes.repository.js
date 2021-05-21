@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { Sequelize } from 'sequelize';
 
-const { Voter, Candidate, Vote, Position } = require('../../database/models');
+const { Voter, Candidate, Vote, Position, Index } = require('../../database/models');
 
 const { Op } = Sequelize;
 
@@ -167,4 +167,33 @@ export async function getBarChartData(position) {
     },
     include: [{ model: Candidate, as: 'candidate', attributes: ['name'] }],
   });
+}
+
+export async function getOneVoterVotes(voter_id) {
+  return Vote.findAll({
+    where: {
+      voter_id,
+    },
+    attributes: ['position_id'],
+  });
+}
+
+export async function getVoterVotes(voter_id) {
+  return Index.findAll({
+    where: {
+      voter_id,
+    },
+    attributes: ['position'],
+  });
+}
+
+/**
+ * get the number of votes a voter has voted
+ *
+ * @function
+ * @returns {json} json number with vote count data
+ * @param data
+ */
+export async function votesCountFromIndex(data) {
+  return Index.count({ where: { voter_id: data } });
 }

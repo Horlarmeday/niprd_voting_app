@@ -4,11 +4,13 @@ import {
   dashboardMetrics,
   getAllVotes,
   getBarChartData,
+  getOneVoterVotes,
   getPieChartData,
   getVoteByPositionAndVoter,
+  getVoterVotes,
   getVotes,
   searchVotes,
-  votesCount,
+  votesCountFromIndex,
 } from './votes.repository';
 import VotersService from '../Voters/voters.service';
 import { APIError } from '../../utils/apiError';
@@ -65,6 +67,14 @@ class VotesService {
     return response;
   }
 
+  static async setPositionVotedFor(phoneNumber, position) {
+    await VotersService.setPositionIndex(phoneNumber, position);
+  }
+
+  static sendFirstResponse() {
+    return `CON Welcome to FMSTCTCS e-voting. \n Press * to start voting \n Press 0 to skip a position`;
+  }
+
   static async verifyVoteInput(input, expectedOptions, voter_id) {
     const optionExist = expectedOptions.find(opt => opt === input);
     if (optionExist) return true;
@@ -79,129 +89,99 @@ class VotesService {
   }
 
   static async getVoteCount(voter_id) {
-    return votesCount(voter_id);
+    return votesCountFromIndex(voter_id);
   }
 
-  static async startVote(body) {
-    const { phoneNumber, text } = body;
-    const positions = await VotersService.getPositions();
-    const voter = await VotersService.getVoterByPhone(phoneNumber);
+  static async formatResponse(position_id = 1) {
+    const position = await VotersService.getPosition(position_id);
+    let contestants = '';
 
+    const { candidates, name } = position;
+
+    candidates.sort((a, b) => {
+      return a.id - b.id;
+    });
+
+    for (let i = 0; i < candidates.length; i++) {
+      contestants += `${candidates[i].id}. ${candidates[i].name}\n`;
+    }
+
+    return `CON Position: ${name}
+    ${contestants}`;
+  }
+
+  static async getAVoterVotesIds(voter_id) {
+    const votes = await getOneVoterVotes(voter_id);
+    return votes.map(vote => vote.position_id);
+  }
+
+  static async mapVoterVotes(voter_id) {
+    const votes = await getVoterVotes(voter_id);
+    return votes.map(vote => vote.position);
+  }
+
+  static compareTwoArrays(positions, positionsVoted) {
+    return positions.filter(id1 => !positionsVoted.some(id2 => id2 === id1));
+  }
+
+  static async getRemainingPosition(voter_id) {
+    // get all available positions id
+    const positions = await VotersService.getPositionsIds();
+    // get positions a voter has voted for
+    const positionsVoted = await this.mapVoterVotes(voter_id);
+    // compare the two array and get the positions not voted for
+    const unVotedPositions = this.compareTwoArrays(positions, positionsVoted);
+    // pick the first position in the array, query the db and send the position object
+
+    return unVotedPositions[0];
+  }
+
+  static async voteStarts(body) {
+    const { phoneNumber, text } = body;
+    // const position = await VotersService.getPosition();
+    const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {
       if ((await this.getVoteCount(voter.id)) >= 8) return `END Sorry you cannot vote again`;
 
-      const index = await VotersService.getPositionIndex(voter.id);
+      if (text === '') return this.sendFirstResponse();
 
-      const candidates = this.getCandidates(positions, index);
+      const position = await this.getRemainingPosition(voter.id);
 
-      if (text === '') {
-        return this.sendResponse(candidates, phoneNumber, 2);
+      if (text === '*') {
+        return this.formatResponse(position);
       }
 
-      if (['1', '2', '3'].includes(text)) {
-        if (await this.checkVoteExists(voter.id, 1)) {
-          return this.sendResponse(candidates, phoneNumber, 3);
-        }
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 1,
-          candidate_id: +text,
-        });
-        return this.sendResponse(candidates, phoneNumber, 3);
+      let input;
+
+      if (text.includes('*')) {
+        const name = text.split('*');
+        const lastIndex = name.length - 1;
+        input = name[lastIndex];
       }
 
-      const name = text.split('*');
-      const lastIndex = name.length - 1;
-      const input = name[lastIndex];
+      if (text === '0' || input === '0') {
+        await VotesService.setPositionVotedFor(phoneNumber, position);
+        return this.formatResponse(position + 1);
+      }
 
-      if (['4', '5', '6'].includes(input)) {
-        if (await this.checkVoteExists(voter.id, 2)) {
-          return this.sendResponse(candidates, phoneNumber, 4);
-        }
+      if (position >= 8) {
         await this.createVoteUSSD({
           voter_id: voter.id,
-          position_id: 2,
+          position_id: position,
           candidate_id: +input,
         });
-        return this.sendResponse(candidates, phoneNumber, 4);
-      }
-
-      if (['7', '8', '9'].includes(input)) {
-        if (await this.checkVoteExists(voter.id, 3)) {
-          return this.sendResponse(candidates, phoneNumber, 5);
-        }
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 3,
-          candidate_id: +input,
-        });
-        return this.sendResponse(candidates, phoneNumber, 5);
-      }
-
-      if (['10', '11', '12'].includes(input)) {
-        if (await this.checkVoteExists(voter.id, 4)) {
-          return this.sendResponse(candidates, phoneNumber, 6);
-        }
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 4,
-          candidate_id: +input,
-        });
-        return this.sendResponse(candidates, phoneNumber, 6);
-      }
-
-      if (['13', '14', '15'].includes(input)) {
-        if (await this.checkVoteExists(voter.id, 5)) {
-          return this.sendResponse(candidates, phoneNumber, 7);
-        }
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 5,
-          candidate_id: +input,
-        });
-        return this.sendResponse(candidates, phoneNumber, 7);
-      }
-
-      if (['16', '17', '18'].includes(input)) {
-        if (await this.checkVoteExists(voter.id, 6)) {
-          return this.sendResponse(candidates, phoneNumber, 8);
-        }
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 6,
-          candidate_id: +input,
-        });
-        return this.sendResponse(candidates, phoneNumber, 8);
-      }
-
-      if (['19', '20', '21'].includes(input)) {
-        if (await this.checkVoteExists(voter.id, 7)) {
-          return `CON Position: ${candidates.name}
-          ${candidates.contestants}`;
-        }
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 7,
-          candidate_id: +input,
-        });
-        return `CON Position: ${candidates.name}
-          ${candidates.contestants}`;
-      }
-
-      if (input === '22') {
-        if (await this.checkVoteExists(voter.id, 8)) {
-          return `END Thank you for voting`;
-        }
-
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: 8,
-          candidate_id: +input,
-        });
+        await VotesService.setPositionVotedFor(phoneNumber, position);
         return `END Thank you for voting`;
       }
-    }
 
+      await this.createVoteUSSD({
+        voter_id: voter.id,
+        position_id: position,
+        candidate_id: +input || text,
+      });
+      await VotesService.setPositionVotedFor(phoneNumber, position);
+      return this.formatResponse(position + 1);
+    }
     return 'END Sorry, You are not eligible to vote.';
   }
 

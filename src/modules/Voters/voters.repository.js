@@ -156,6 +156,35 @@ export async function getPositions() {
 }
 
 /**
+ * get positions
+ *
+ * @function
+ * @returns {json} json object with positions data
+ */
+export async function getPositionsIds() {
+  return Position.findAll({
+    order: [['id', 'ASC']],
+    attributes: ['id'],
+  });
+}
+
+/**
+ * get position
+ *
+ * @function
+ * @returns {json} json object with positions data
+ */
+export async function getOnePosition(position_id) {
+  return Position.findOne({
+    order: [['createdAt', 'ASC']],
+    where: {
+      id: position_id,
+    },
+    include: [{ model: Candidate, as: 'candidates', attributes: ['name', 'id'] }],
+  });
+}
+
+/**
  * get voter index
  *
  * @function

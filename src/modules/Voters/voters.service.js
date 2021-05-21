@@ -5,7 +5,9 @@ import {
   createVoter,
   findVoterByPhone,
   getCandidates,
+  getOnePosition,
   getPositions,
+  getPositionsIds,
   getVoterPositionIndex,
   getVoters,
   searchVoters,
@@ -110,7 +112,7 @@ class VotersService {
   }
 
   /**
-   * get position
+   * get positions
    *
    * @static
    * @returns {json} json object with position data
@@ -118,6 +120,29 @@ class VotersService {
    */
   static async getPositions() {
     return getPositions();
+  }
+
+  /**
+   * get positions ids only
+   *
+   * @static
+   * @returns {json} json object with position data
+   * @memberOf VotersService
+   */
+  static async getPositionsIds() {
+    const positions = await getPositionsIds();
+    return positions.map(position => position.id);
+  }
+
+  /**
+   * get position
+   *
+   * @static
+   * @returns {json} json object with position data
+   * @memberOf VotersService
+   */
+  static async getPosition(position_id) {
+    return getOnePosition(position_id);
   }
 
   /**

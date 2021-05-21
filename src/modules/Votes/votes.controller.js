@@ -57,7 +57,7 @@ class VotesController {
    */
   static async startVote(req, res, next) {
     try {
-      const response = await VotesService.startVote(req.body);
+      const response = await VotesService.voteStarts(req.body);
 
       res.set('Content-Type: text/plain');
       return res.send(response);
