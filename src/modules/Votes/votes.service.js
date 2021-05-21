@@ -1,12 +1,12 @@
 /* eslint-disable no-plusplus,camelcase */
 import {
+  createSurvey,
   createVote,
   dashboardMetrics,
   getAllVotes,
   getBarChartData,
-  getOneVoterVotes,
   getPieChartData,
-  getVoteByPositionAndVoter,
+  getVoteByPositionAndVoter, getVoterSurveyCount,
   getVoterVotes,
   getVotes,
   searchVotes,
@@ -15,8 +15,6 @@ import {
 import VotersService from '../Voters/voters.service';
 import { APIError } from '../../utils/apiError';
 import { groupByCandidate } from '../../helpers/helpers';
-
-const { Vote, Index } = require('../../database/models/index');
 
 class VotesService {
   static async createVoteWeb(body) {
@@ -68,8 +66,7 @@ class VotesService {
       contestants += `${candidates[i].id}. ${candidates[i].name}\n`;
     }
 
-    return `CON Position: ${name}
-    ${contestants} Press 0 to skip voting for this position`;
+    return `CON Position: ${name}\n ${contestants}\n Press 0 to skip voting for this position`;
   }
 
   static async mapVoterVotes(voter_id) {
@@ -98,7 +95,9 @@ class VotesService {
     // const position = await VotersService.getPosition();
     const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {
-      if ((await this.getVoteCount(voter.id)) >= 8) return `END Sorry you cannot vote again`;
+      if ((await this.getVoteCount(voter.id)) >= 8 && (await getVoterSurveyCount(voter.id)) >= 1) {
+        return `END Sorry you cannot vote again`;
+      }
 
       if (text === '') return this.sendFirstResponse();
 
@@ -128,6 +127,11 @@ class VotesService {
           candidate_id: +input,
         });
         await VotesService.setPositionVotedFor(phoneNumber, position);
+        return `CON Do you support e-voting?\n a. Yes\n b. No \nType and send either a or b`;
+      }
+
+      if (input.toLowerCase() === 'a' || input.toLowerCase() === 'b') {
+        await createSurvey(input, voter.id);
         return `END Thank you for voting`;
       }
 

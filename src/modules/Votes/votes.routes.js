@@ -7,6 +7,7 @@ router.get('/votes', VotesController.renderVotes);
 router.get('/votes/create', VotesController.renderCreateVotes);
 // APIs
 router.post('/api/votes', VotesController.createVote);
+router.post('/api/test', VotesController.test);
 router.post('/ussd', VotesController.startVote);
 router.post('/notification', VotesController.africaTalkingNotification);
 router.get('/api/votes', VotesController.getVotes);

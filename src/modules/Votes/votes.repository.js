@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { Sequelize } from 'sequelize';
 
-const { Voter, Candidate, Vote, Position, Index } = require('../../database/models');
+const { Voter, Candidate, Vote, Position, Index, Survey } = require('../../database/models');
 
 const { Op } = Sequelize;
 
@@ -196,4 +196,30 @@ export async function getVoterVotes(voter_id) {
  */
 export async function votesCountFromIndex(data) {
   return Index.count({ where: { voter_id: data } });
+}
+
+/**
+ * create a survey
+ *
+ * @function
+ * @returns {json} json object with vote data
+ * @param response
+ * @param voter_id
+ */
+export async function createSurvey(response, voter_id) {
+  return Survey.create({
+    voter_id,
+    response,
+  });
+}
+
+/**
+ * get the number the voter survey
+ *
+ * @function
+ * @returns {json} json number with vote count data
+ * @param data
+ */
+export async function getVoterSurveyCount(data) {
+  return Survey.count({ where: { voter_id: data } });
 }

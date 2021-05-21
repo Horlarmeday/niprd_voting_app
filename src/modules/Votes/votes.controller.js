@@ -1,6 +1,7 @@
 import VotesService from './votes.service';
 import successResponse from '../../config/success-response';
 import { validateBarChart, validateVote } from './validations';
+import VotersService from '../Voters/voters.service';
 
 class VotesController {
   /**
@@ -64,6 +65,25 @@ class VotesController {
     } catch (e) {
       return next(e);
     }
+  }
+
+  static async test(req, res, next) {
+    const position = await VotersService.getPosition(1);
+    let contestants = '';
+
+    const { candidates, name } = position;
+
+    candidates.sort((a, b) => {
+      return a.id - b.id;
+    });
+
+    for (let i = 0; i < candidates.length; i++) {
+      contestants += `${candidates[i].id}. ${candidates[i].name}\n`;
+    }
+
+    return res
+      .status(200)
+      .json(`CON Position: ${name}\n${contestants}\n Press 0 to skip voting for this position`);
   }
 
   /**
