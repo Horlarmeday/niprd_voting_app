@@ -6,17 +6,19 @@ import {
   dashboardMetrics,
   getAllVotes,
   getBarChartData,
-  getPieChartData, getSurveys,
+  getPieChartData,
+  getSurveys,
   getVoteByPositionAndVoter,
   getVoterSurveyCount,
   getVoterVotes,
-  getVotes, searchSurveys,
+  getVotes,
+  searchSurveys,
   searchVotes,
   votesCountFromIndex,
 } from './votes.repository';
 import VotersService from '../Voters/voters.service';
 import { APIError } from '../../utils/apiError';
-import { groupByCandidate } from '../../helpers/helpers';
+import { groupByCandidate, restrictedTime } from '../../helpers/helpers';
 
 class VotesService {
   static async createVoteWeb(body) {
@@ -94,7 +96,18 @@ class VotesService {
 
   static async voteStarts(body) {
     const { phoneNumber, text } = body;
-    // const position = await VotersService.getPosition();
+
+    const time = restrictedTime();
+    const { now, start, end } = time;
+    console.log({
+      now,
+      start,
+      end,
+    });
+    if (+now >= end) return `END Sorry voting has ended`;
+
+    if (+now < start) return `END Sorry you cannot vote now`;
+
     const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {
       if ((await this.getVoteCount(voter.id)) >= 8 && (await getVoterSurveyCount(voter.id)) >= 1) {
@@ -105,48 +118,45 @@ class VotesService {
 
       const position = await this.getRemainingPosition(voter.id);
 
-      if (position) {
-        if (text === '*') {
-          return this.formatResponse(position);
-        }
+      if (text === '*') {
+        return this.formatResponse(position);
+      }
 
-        let input;
+      let input;
 
-        if (text.includes('*')) {
-          const name = text.split('*');
-          const lastIndex = name.length - 1;
-          input = name[lastIndex];
-        }
+      if (text.includes('*')) {
+        const name = text.split('*');
+        const lastIndex = name.length - 1;
+        input = name[lastIndex];
+      }
 
-        if (text === '0' || input === '0') {
-          await VotesService.setPositionVotedFor(phoneNumber, position);
-          return this.formatResponse(position + 1);
-        }
-
-        if (position >= 8) {
-          await this.createVoteUSSD({
-            voter_id: voter.id,
-            position_id: position,
-            candidate_id: +input,
-          });
-          await VotesService.setPositionVotedFor(phoneNumber, position);
-          return `CON Do you support e-voting?\n a. Yes\n b. No \nType and send either a or b`;
-        }
-
-        if (input.toLowerCase() === 'a' || input.toLowerCase() === 'b') {
-          await createSurvey(input, voter.id);
-          return `END Thank you for voting`;
-        }
-
-        await this.createVoteUSSD({
-          voter_id: voter.id,
-          position_id: position,
-          candidate_id: +input || text,
-        });
+      if (text === '0' || input === '0') {
         await VotesService.setPositionVotedFor(phoneNumber, position);
         return this.formatResponse(position + 1);
       }
-      return 'END Sorry, End of voting.';
+
+      if (position && position >= 8) {
+        await this.createVoteUSSD({
+          voter_id: voter.id,
+          position_id: position,
+          candidate_id: +input,
+        });
+        await VotesService.setPositionVotedFor(phoneNumber, position);
+        return `CON Do you support e-voting?\n a. Yes\n b. No \nType and send either a or b`;
+      }
+
+      if (input.toLowerCase() === 'a' || input.toLowerCase() === 'b') {
+        await createSurvey(input, voter.id);
+        return `END Thank you for voting`;
+      }
+
+      await this.createVoteUSSD({
+        voter_id: voter.id,
+        position_id: position,
+        candidate_id: +input || text,
+      });
+      await VotesService.setPositionVotedFor(phoneNumber, position);
+      return this.formatResponse(position + 1);
     }
     return 'END Sorry, You are not eligible to vote.';
   }

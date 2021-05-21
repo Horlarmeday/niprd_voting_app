@@ -1,7 +1,7 @@
 import VotesService from './votes.service';
 import successResponse from '../../config/success-response';
 import { validateBarChart, validateVote } from './validations';
-import VotersService from '../Voters/voters.service';
+import { restrictedTime } from '../../helpers/helpers';
 
 class VotesController {
   /**
