@@ -100,7 +100,7 @@ class VotesService {
     const time = restrictedTime();
     const { now, start, end } = time;
 
-    if (now >= end) return `END Sorry voting has ended`;
+    if (now >= end) return `END Sorry the voting has ended`;
 
     if (now < start)
       return `END Sorry it's not yet time for voting, voting starts at 11am to 12pm. Thank you`;
@@ -144,7 +144,7 @@ class VotesService {
 
       if (input.toLowerCase() === 'a' || input.toLowerCase() === 'b') {
         await createSurvey(input, voter.id);
-        return `END Thank you for voting`;
+        return `END Congratulations you have successfully casted your vote. Thank you`;
       }
 
       await this.createVoteUSSD({
