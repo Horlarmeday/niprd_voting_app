@@ -102,6 +102,12 @@ class VotesService {
 
     if (now >= end) return `END Sorry the voting has ended`;
 
+    console.log({
+      now,
+      start,
+      end,
+    });
+
     if (now < start)
       return `END Sorry it's not yet time for voting, voting starts at 11am to 12pm. Thank you`;
 
