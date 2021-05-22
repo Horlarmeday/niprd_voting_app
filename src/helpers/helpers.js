@@ -17,14 +17,14 @@ function setTime(hour, minute, seconds) {
 }
 
 export function restrictedTime() {
-  const n = new Date();
-  const now = ((n.getHours() % 12 || 12) < 10 ? '0' : '') + (n.getHours() % 12 || 12);
+  const now = new Date();
+  // const now = ((n.getHours() % 12 || 12) < 10 ? '0' : '') + (n.getHours() % 12 || 12);
 
-  const startHour = setTime(6, 30, 0);
-  const start = startHour.getHours();
+  const start = setTime(10, 0, 0);
+  // const start = startHour.getHours();
 
-  const endHour = setTime(8, 30, 0);
-  const end = endHour.getHours();
+  const end = setTime(12, 0, 0);
+  // const end = endHour.getHours();
 
   return { now, start, end };
 }

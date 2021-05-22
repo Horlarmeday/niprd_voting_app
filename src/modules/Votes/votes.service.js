@@ -104,9 +104,9 @@ class VotesService {
       start,
       end,
     });
-    if (+now >= end) return `END Sorry voting has ended`;
+    if (now >= end) return `END Sorry voting has ended`;
 
-    if (+now < start) return `END Sorry you cannot vote now`;
+    if (now < start) return `END Sorry you cannot vote now`;
 
     const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {
