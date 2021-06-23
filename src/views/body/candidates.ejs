@@ -43,9 +43,12 @@
     el: '#candidates',
     data: {
       candidates: [],
-      getCandidatesUrl: '/api/candidates'
+      getCandidatesUrl: '/api/candidates',
+      token: null
     },
     mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!this.token) return window.location.replace('/')
       this.getCandidates();
     },
     methods: {
@@ -55,7 +58,7 @@
       },
 
       getCandidates() {
-        axios.get(this.getCandidatesUrl)
+        axios.get(this.getCandidatesUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.candidates = response.data.data
           })

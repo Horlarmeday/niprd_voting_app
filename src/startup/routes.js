@@ -1,9 +1,11 @@
 import votersRoutes from '../modules/Voters/voters.routes';
 import votesRoutes from '../modules/Votes/votes.routes';
+import authRoutes from '../modules/Auth/auth.routes';
 
 export default server => {
   server.use(votersRoutes);
   server.use(votesRoutes);
+  server.use(authRoutes);
 
   server.use((req, res, next) => {
     const apiTimeout = 18000;

@@ -42,9 +42,12 @@
     el: '#positions',
     data: {
       positions: [],
-      getPositionsUrl: '/api/positions'
+      getPositionsUrl: '/api/positions',
+      token: null
     },
     mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!this.token) return window.location.replace('/')
       this.getPositions();
     },
     methods: {
@@ -54,7 +57,7 @@
       },
 
       getPositions() {
-        axios.get(this.getPositionsUrl)
+        axios.get(this.getPositionsUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.positions = response.data.data
           })

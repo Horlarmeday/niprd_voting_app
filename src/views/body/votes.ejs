@@ -71,10 +71,13 @@
       rows: null,
       pageSize: null,
       pageCount: null,
+      token: null,
       input: '',
       getVotesUrl: '/api/votes'
     },
     mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!this.token) return window.location.replace('/')
       this.getVotes();
     },
     methods: {
@@ -84,7 +87,7 @@
       },
 
       getVotes() {
-        axios.get(`${this.getVotesUrl}?currentPage=${this.currentPage}&pageLimit=${this.pageLimit}&search=${this.input}`)
+        axios.get(`${this.getVotesUrl}?currentPage=${this.currentPage}&pageLimit=${this.pageLimit}&search=${this.input}`, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.votes = response.data.data.docs
             this.rows = response.data.data.total

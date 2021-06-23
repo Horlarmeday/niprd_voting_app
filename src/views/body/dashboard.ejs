@@ -140,8 +140,11 @@
       getAggregatedVotesUrl: '/api/aggregated-votes',
       getPieChartUrl: '/api/pie-chart-data',
       getBarChartUrl: '/api/bar-chart-data',
+      token: null
     },
     mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!this.token) return window.location.replace('/')
       this.getDashboardMetrics();
       setInterval(() => {
         this.getDashboardMetrics();
@@ -154,7 +157,7 @@
       },
 
       getDashboardMetrics() {
-        axios.get(this.getDashboardMetricsUrl)
+        axios.get(this.getDashboardMetricsUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.metrics = response.data.data
             this.getAggregatedVotes()
@@ -163,7 +166,7 @@
       },
 
       getAggregatedVotes() {
-        axios.get(this.getAggregatedVotesUrl)
+        axios.get(this.getAggregatedVotesUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.aggregatedVotes = response.data.data
             this.getDonutChart()
@@ -172,7 +175,7 @@
       },
 
       getDonutChart() {
-        axios.get(this.getPieChartUrl)
+        axios.get(this.getPieChartUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.donutSeries = response.data.data
             const { pres, vice_pres_1, vice_pres_2, gen_sec, fin_sec, treasurer, ass_gen_sec, ass_fin_sec } = this.donutSeries
@@ -218,7 +221,7 @@
 
       getBarChart(position) {
         this.barChartLoading = true
-        axios.post(this.getBarChartUrl, { position: position })
+        axios.post(this.getBarChartUrl, { position: position }, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.barChartSeries = response.data.data
             const series = this.barChartSeries.map(vote => vote.number_of_votes);

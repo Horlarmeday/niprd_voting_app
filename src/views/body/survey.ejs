@@ -84,6 +84,8 @@
       getAggregatedSurveyUrl: '/api/survey-metrics',
     },
     mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!token) return window.location.replace('/login')
       this.getSurveys();
     },
     methods: {
@@ -93,7 +95,7 @@
       },
 
       getSurveys() {
-        axios.get(`${this.getSurveysUrl}?currentPage=${this.currentPage}&pageLimit=${this.pageLimit}`)
+        axios.get(`${this.getSurveysUrl}?currentPage=${this.currentPage}&pageLimit=${this.pageLimit}`, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.surveys = response.data.data.docs
             this.rows = response.data.data.total
@@ -105,7 +107,7 @@
       },
 
       getAggregatedSurveyData() {
-        axios.get(this.getAggregatedSurveyUrl)
+        axios.get(this.getAggregatedSurveyUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.metrics = response.data.data
           })
