@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment-timezone';
 
 export function groupByCandidate(data) {
   return _(data)
@@ -7,24 +8,25 @@ export function groupByCandidate(data) {
     .value();
 }
 
-function setTime(hour, minute, seconds) {
-  const now = new Date();
-  now.setDate(now.getDate());
-  now.setHours(hour);
-  now.setMinutes(minute);
-  now.setMilliseconds(seconds);
-  return now;
-}
-
 export function restrictedTime() {
-  const now = new Date();
-  // const now = ((n.getHours() % 12 || 12) < 10 ? '0' : '') + (n.getHours() % 12 || 12);
+  const timezone = 'Africa/Lagos';
+  const now = moment().tz(timezone);
+  const startTime = moment()
+    .month(5)
+    .date(25)
+    .hours(8)
+    .minutes(0)
+    .seconds(0)
+    .milliseconds(0)
+    .tz(timezone);
+  const endTime = moment()
+    .month(5)
+    .date(25)
+    .hours(16)
+    .minutes(0)
+    .seconds(0)
+    .milliseconds(0)
+    .tz(timezone);
 
-  const start = setTime(10, 0, 0);
-  // const start = startHour.getHours();
-
-  const end = setTime(12, 0, 0);
-  // const end = endHour.getHours();
-
-  return { now, start, end };
+  return { now, startTime, endTime };
 }

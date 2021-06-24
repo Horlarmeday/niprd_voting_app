@@ -35,8 +35,13 @@
     data: {
       name: null,
       phone: null,
+      token: null,
       loading: false,
       createVoterUrl: '/api/voters'
+    },
+    mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!this.token) return window.location.replace('/')
     },
     methods: {
       handleError(e) {
@@ -53,7 +58,7 @@
       createVoter() {
         if (!this.name || !this.phone) return this.$toasted.error('Input fields are required').goAway(5000);
         const data = { name: this.name, phone: this.phone }
-        axios.post(this.createVoterUrl, data)
+        axios.post(this.createVoterUrl, data, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => this.handleSuccess(response))
           .catch(error => this.handleError(error))
       }

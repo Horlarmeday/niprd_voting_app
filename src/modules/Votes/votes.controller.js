@@ -1,7 +1,7 @@
+import moment from 'moment-timezone';
 import VotesService from './votes.service';
 import successResponse from '../../config/success-response';
 import { validateBarChart, validateVote } from './validations';
-import { restrictedTime } from '../../helpers/helpers';
 
 class VotesController {
   /**
@@ -72,6 +72,30 @@ class VotesController {
       const response = await VotesService.voteStarts(req.body);
 
       res.set('Content-Type: text/plain');
+      return res.send(response);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  static async test(req, res, next) {
+    try {
+      const response = {
+        now: moment()
+          .tz('Africa/Lagos')
+          .format('dddd, MMMM Do YYYY, hA'),
+        start: moment('2021-06-24T22:44:39.956Z').format('dddd, MMMM Do YYYY, hA'),
+        end: moment()
+          .month(5)
+          .date(25)
+          .hours(16)
+          .minutes(0)
+          .seconds(0)
+          .milliseconds(0)
+          .tz('Africa/Lagos').format('dddd, MMMM Do YYYY, hA'),
+        timezone: moment.tz.guess(),
+      }
+
       return res.send(response);
     } catch (e) {
       return next(e);

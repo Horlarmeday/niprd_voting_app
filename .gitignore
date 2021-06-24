@@ -43,3 +43,7 @@ dist/
 .vscode
 .idea/
 config.json
+.docx
+.pdf
+/Names of Candidates for balloting.docx
+/Names of Candidates for balloting-1.docx

@@ -40,12 +40,15 @@
     data: {
       name: null,
       position_id: null,
+      token: null,
       positions: [],
       getPositionsUrl: '/api/positions',
       loading: false,
       createCandidateUrl: '/api/candidates'
     },
     mounted() {
+      this.token = localStorage.getItem('fmst_ticket');
+      if (!this.token) return window.location.replace('/')
       this.getPositions()
     },
     methods: {
@@ -61,7 +64,7 @@
       },
 
       getPositions() {
-        axios.get(this.getPositionsUrl)
+        axios.get(this.getPositionsUrl, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => {
             this.positions = response.data.data
           })
@@ -71,7 +74,7 @@
       createCandidate() {
         if (!this.name || !this.position_id) return this.$toasted.error('Input fields are required').goAway(5000);
         const data = { name: this.name, position_id: this.position_id }
-        axios.post(this.createCandidateUrl, data)
+        axios.post(this.createCandidateUrl, data, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => this.handleSuccess(response))
           .catch(error => this.handleError(error))
       }

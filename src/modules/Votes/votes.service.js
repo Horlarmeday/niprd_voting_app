@@ -1,4 +1,5 @@
 /* eslint-disable no-plusplus,camelcase */
+import moment from 'moment-timezone'
 import {
   aggregatedSurveyData,
   createSurvey,
@@ -97,19 +98,18 @@ class VotesService {
   static async voteStarts(body) {
     const { phoneNumber, text } = body;
 
-    const time = restrictedTime();
-    const { now, start, end } = time;
-
-    if (now >= end) return `END Sorry the voting has ended`;
+    const { now, endTime, startTime } = restrictedTime();
 
     console.log({
-      now,
-      start,
-      end,
+      now: moment(now).format('dddd, MMMM Do YYYY, hA'),
+      startTime: moment(startTime).format('dddd, MMMM Do YYYY, hA'),
+      endTime: moment(endTime).format('dddd, MMMM Do YYYY, hA'),
     });
 
-    if (now < start)
-      return `END Sorry it's not yet time for voting, voting starts at 11am to 12pm. Thank you`;
+    if (now >= endTime) return `END Sorry the voting has ended`;
+
+    if (now <= startTime)
+      return `END Sorry it's not yet time for voting, voting starts at 8am to 4pm. Thank you`;
 
     const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {

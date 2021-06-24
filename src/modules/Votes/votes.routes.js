@@ -11,6 +11,7 @@ router.get('/surveys', VotesController.renderSurveys);
 // APIs
 router.post('/api/votes', verify, VotesController.createVote);
 router.post('/ussd', VotesController.startVote);
+router.get('/test', VotesController.test);
 router.post('/notification', VotesController.africaTalkingNotification);
 router.get('/api/votes', verify, VotesController.getVotes);
 router.get('/api/surveys', verify, VotesController.getSurveys);

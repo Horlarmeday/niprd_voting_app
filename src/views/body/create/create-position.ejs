@@ -30,8 +30,13 @@
       el: '#position',
       data: {
         position: null,
+        token: null,
         loading: false,
         createPositionUrl: '/api/positions'
+      },
+      mounted() {
+        this.token = localStorage.getItem('fmst_ticket');
+        if (!this.token) return window.location.replace('/')
       },
       methods: {
         handleError(e) {
@@ -46,7 +51,7 @@
 
         createPosition() {
           if (!this.position) return this.$toasted.error('Position is required').goAway(5000);
-          axios.post(this.createPositionUrl, { position: this.position })
+          axios.post(this.createPositionUrl, { position: this.position }, { headers: { 'Authorization': `Bearer ${this.token}` } })
           .then(response => this.handleSuccess(response))
           .catch(error => this.handleError(error))
         }
