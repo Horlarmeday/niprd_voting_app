@@ -1,6 +1,7 @@
 import VotersService from './voters.service';
 import { validateCandidate, validatePosition, validateVoter } from './validations';
 import successResponse from '../../config/success-response';
+import { APIError } from '../../utils/apiError';
 
 /**
  *
@@ -107,6 +108,7 @@ class VotersController {
     if (error) return res.status(400).json({ message: error.details[0].message });
 
     try {
+      throw new APIError('INVALID', 400, "Sorry, you cannot carry out this action");
       const voter = await VotersService.createVoter(req.body);
 
       return successResponse(res, 201, 'Data saved', voter);
