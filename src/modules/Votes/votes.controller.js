@@ -38,6 +38,17 @@ class VotesController {
   }
 
   /**
+   * display analysis
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   */
+  static async renderAnalysis(req, res) {
+    res.render('body/analysis');
+  }
+
+  /**
    * create vote
    *
    * @static
@@ -260,6 +271,25 @@ class VotesController {
       const metrics = await VotesService.getSurveyData();
 
       return successResponse(res, 200, 'Data retrieved', metrics);
+    } catch (e) {
+      return next(e);
+    }
+  }
+
+  /**
+   * get votes analysis
+   *
+   * @static
+   * @param {object} req express request object
+   * @param {object} res express response object
+   * @param {object} next next middleware
+   * @returns {json} json object with votes data
+   */
+  static async getVoteAnalysis(req, res, next) {
+    try {
+      const votes = await VotesService.getAllVotes();
+
+      return successResponse(res, 200, 'Data saved', votes);
     } catch (e) {
       return next(e);
     }

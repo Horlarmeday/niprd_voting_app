@@ -57,6 +57,25 @@
                         </div>
                     </div>
                 </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
+                        <div class="card card-light-blue">
+                            <div class="card-body">
+                                <p class="mb-4">Number of Skipped Votes</p>
+                                <p class="fs-30 mb-2">{{ voteSkipped }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 stretch-card transparent">
+                        <div class="card card-light-danger">
+                            <div class="card-body">
+                                <p class="mb-4">Number of Expected Votes</p>
+                                <p class="fs-30 mb-2">{{ expectedVotes }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">
@@ -146,6 +165,7 @@
       this.token = localStorage.getItem('fmst_ticket');
       if (!this.token) return window.location.replace('/')
       this.getDashboardMetrics();
+      this.getBarChart(1)
       setInterval(() => {
         this.getDashboardMetrics();
       }, 30000);
@@ -170,6 +190,7 @@
           .then(response => {
             this.aggregatedVotes = response.data.data
             this.getDonutChart()
+            // window.scroll(0, 0)
           })
           .catch(error => this.handleError(error))
       },
@@ -212,7 +233,6 @@
             }
             let chart = new ApexCharts(document.querySelector("#donut"), options);
             chart.render();
-            this.getBarChart(1)
           })
           .catch(function (error) {
             this.handleError(error)
@@ -254,6 +274,15 @@
           })
           .catch(error => this.handleError(error))
       },
+    },
+    computed: {
+      expectedVotes() {
+        return +this.metrics.positions * +this.metrics.eligible_voters
+      },
+
+      voteSkipped() {
+        return +this.expectedVotes - +this.metrics.votes_casted
+      }
     },
     beforeDestroy () {
       clearInterval(this.polling)

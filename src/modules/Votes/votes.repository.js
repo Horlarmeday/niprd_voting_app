@@ -282,3 +282,18 @@ export async function aggregatedSurveyData() {
   ]);
   return { positiveResponses, negativeResponses, totalResponses };
 }
+
+/**
+ * get votes by position
+ *
+ * @function
+ * @returns {json} json number with votes data
+ */
+export async function getVoteByPosition(position_id) {
+  return Vote.findAll({
+    where: {
+      position_id,
+    },
+    include: [{ model: Candidate, as: 'candidate', attributes: ['name'] }],
+  });
+}

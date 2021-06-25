@@ -45,11 +45,11 @@
                         </div>
                         <div>
                             <p>
-                                Showing {{ pageSize }} of {{ rows }} entries
+                                Showing {{ pageSize * currentPage }} of {{ rows }} entries
                             </p>
                             <div class="btn-group mt-3 float-right" role="group" aria-label="Basic example">
-                                <button :disabled="isPreviousButtonDisabled" @click="pageChangeHandle('previous')" type="button" class="btn btn-outline-secondary">Prev</button>
-                                <button :disabled="isNextButtonDisabled" @click="pageChangeHandle('next')" type="button" class="btn btn-outline-secondary">Next</button>
+                                <button :disabled="isPreviousButtonDisabled" @click="pageChangeHandle('previous')" type="button" class="btn btn-primary">Prev</button>
+                                <button :disabled="isNextButtonDisabled" @click="pageChangeHandle('next')" type="button" class="btn btn-primary">Next</button>
                             </div>
                         </div>
                     </div>

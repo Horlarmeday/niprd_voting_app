@@ -8,6 +8,7 @@ router.get('/votes', VotesController.renderVotes);
 router.get('/votes/create', VotesController.renderCreateVotes);
 router.get('/votes/create', VotesController.renderCreateVotes);
 router.get('/surveys', VotesController.renderSurveys);
+router.get('/analysis', VotesController.renderAnalysis);
 // APIs
 router.post('/api/votes', verify, VotesController.createVote);
 router.post('/ussd', VotesController.startVote);
