@@ -62,7 +62,7 @@
                     <div class="col-md-6 mb-4 mb-lg-0 stretch-card transparent">
                         <div class="card card-light-blue">
                             <div class="card-body">
-                                <p class="mb-4">Number of Skipped Votes</p>
+                                <p class="mb-4">Number of Remaining Votes</p>
                                 <p class="fs-30 mb-2">{{ voteSkipped }}</p>
                             </div>
                         </div>
@@ -129,7 +129,14 @@
                                 </thead>
                                 <tbody v-for="(vote, index) in aggregatedVotes" :key="index">
                                     <tr>
-                                        <td>{{ vote.data[0].candidate.name }}</td>
+                                        <td>
+<!--                                            <span v-if="vote.data[0].candidate.name">-->
+                                                {{ vote.data[0].candidate.name }}
+<!--                                            </span>-->
+<!--                                            <span v-else>-->
+<!--                                                No Candidate with this name-->
+<!--                                            </span>-->
+                                        </td>
                                         <td class="font-weight-bold">{{ vote.data[0].position.name }}</td>
                                         <td>{{ vote.data.length }}</td>
                                         <td class="font-weight-medium"><div class="badge badge-success">Completed</div></td>

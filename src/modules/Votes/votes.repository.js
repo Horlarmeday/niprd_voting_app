@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 import { Sequelize } from 'sequelize';
+import { map } from 'lodash'
+import { sumArray } from '../../helpers/helpers';
 
 const { Voter, Candidate, Vote, Position, Index, Survey } = require('../../database/models');
 
@@ -107,8 +109,20 @@ export async function dashboardMetrics() {
     Voter.count(),
     Position.count(),
     Vote.aggregate('voter_id', 'DISTINCT', { plain: false }),
+    // Vote.findAll({
+    //   attributes: [
+    //     [Sequelize.fn('COUNT', Sequelize.col('position_id')), 'position_id'],
+    //     'voter_id',
+    //   ],
+    //   group: ['voter_id'],
+    // }),
   ]);
-  return { votes_casted, eligible_voters, positions, voters: voters.length };
+  return {
+    votes_casted,
+    eligible_voters,
+    positions,
+    voters: voters.length,
+  };
 }
 
 /**
