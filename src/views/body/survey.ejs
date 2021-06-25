@@ -80,12 +80,13 @@
       pageSize: null,
       pageCount: null,
       metrics: null,
+      token: null,
       getSurveysUrl: '/api/surveys',
       getAggregatedSurveyUrl: '/api/survey-metrics',
     },
     mounted() {
       this.token = localStorage.getItem('fmst_ticket');
-      if (!token) return window.location.replace('/login')
+      if (!this.token) return window.location.replace('/')
       this.getSurveys();
     },
     methods: {

@@ -1,5 +1,5 @@
 /* eslint-disable no-plusplus,camelcase */
-import moment from 'moment-timezone'
+import moment from 'moment-timezone';
 import {
   aggregatedSurveyData,
   createSurvey,
@@ -9,6 +9,7 @@ import {
   getBarChartData,
   getPieChartData,
   getSurveys,
+  getVoteByPosition,
   getVoteByPositionAndVoter,
   getVoterSurveyCount,
   getVoterVotes,
@@ -105,11 +106,11 @@ class VotesService {
       startTime: moment(startTime).format('dddd, MMMM Do YYYY, h:mma'),
       endTime: moment(endTime).format('dddd, MMMM Do YYYY, h:mma'),
     });
-
-    if (now >= endTime) return `END Sorry the voting has ended`;
-
-    if (now <= startTime)
-      return `END Sorry it's not yet time for voting, voting starts at 8am to 4pm. Thank you`;
+    //
+    // if (now >= endTime) return `END Sorry the voting has ended`;
+    //
+    // if (now <= startTime)
+    //   return `END Sorry it's not yet time for voting, voting starts at 8am to 4pm. Thank you`;
 
     const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {
@@ -262,6 +263,41 @@ class VotesService {
   static async getSurveyData() {
     return aggregatedSurveyData();
   }
+
+  // /**
+  //  * get votes analysis
+  //  *
+  //  * @static
+  //  * @returns {json} json votes analysis data
+  //  * @memberOf VotersService
+  //  */
+  // static async getVotesAnalysis() {
+  //   const [
+  //     president,
+  //     vice_pres,
+  //     vice_pres_2,
+  //     gen_sec,
+  //     fin_sec,
+  //     treasurer,
+  //     ass_gen_sec,
+  //     ass_fin_sec,
+  //   ] = await Promise.all([
+  //     getVoteByPosition(1),
+  //     getVoteByPosition(2),
+  //     getVoteByPosition(3),
+  //     getVoteByPosition(4),
+  //     getVoteByPosition(5),
+  //     getVoteByPosition(6),
+  //     getVoteByPosition(7),
+  //     getVoteByPosition(8),
+  //   ]);
+  //   return {
+  //     president,
+  //     vice_pres,
+  //     vice_pres_2,
+  //
+  //   };
+  // }
 }
 
 export default VotesService;
