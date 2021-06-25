@@ -101,9 +101,9 @@ class VotesService {
     const { now, endTime, startTime } = restrictedTime();
 
     console.log({
-      now: moment(now).format('dddd, MMMM Do YYYY, hA'),
-      startTime: moment(startTime).format('dddd, MMMM Do YYYY, hA'),
-      endTime: moment(endTime).format('dddd, MMMM Do YYYY, hA'),
+      now: moment(now).format('dddd, MMMM Do YYYY, h:mma'),
+      startTime: moment(startTime).format('dddd, MMMM Do YYYY, h:mma'),
+      endTime: moment(endTime).format('dddd, MMMM Do YYYY, h:mma'),
     });
 
     if (now >= endTime) return `END Sorry the voting has ended`;

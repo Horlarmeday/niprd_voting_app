@@ -83,8 +83,16 @@ class VotesController {
       const response = {
         now: moment()
           .tz('Africa/Lagos')
-          .format('dddd, MMMM Do YYYY, hA'),
-        start: moment('2021-06-24T22:44:39.956Z').format('dddd, MMMM Do YYYY, hA'),
+          .format('dddd, MMMM Do YYYY, h:mma'),
+        start: moment()
+          .month(5)
+          .date(25)
+          .hours(8)
+          .minutes(0)
+          .seconds(0)
+          .milliseconds(0)
+          .tz('Africa/Lagos')
+          .format('dddd, MMMM Do YYYY, h:mma'),
         end: moment()
           .month(5)
           .date(25)
@@ -92,9 +100,10 @@ class VotesController {
           .minutes(0)
           .seconds(0)
           .milliseconds(0)
-          .tz('Africa/Lagos').format('dddd, MMMM Do YYYY, hA'),
+          .tz('Africa/Lagos')
+          .format('dddd, MMMM Do YYYY, h:mma'),
         timezone: moment.tz.guess(),
-      }
+      };
 
       return res.send(response);
     } catch (e) {
