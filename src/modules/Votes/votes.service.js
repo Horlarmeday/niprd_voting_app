@@ -107,15 +107,15 @@ class VotesService {
       endTime: moment(endTime).format('dddd, MMMM Do YYYY, h:mma'),
     });
     //
-    // if (now >= endTime) return `END Sorry the voting has ended`;
-    //
-    // if (now <= startTime)
-    //   return `END Sorry it's not yet time for voting, voting starts at 8am to 4pm. Thank you`;
+    if (now >= endTime) return `END Sorry the voting has ended`;
+
+    if (now <= startTime)
+      return `END Sorry it's not yet time for voting, voting starts at 8am to 4pm. Thank you`;
 
     const voter = await VotersService.getVoterByPhone(phoneNumber);
     if (voter) {
-      if ((await this.getVoteCount(voter.id)) >= 8 && (await getVoterSurveyCount(voter.id)) >= 1) {
-        return `END Sorry you cannot vote again`;
+      if ((await this.getVoteCount(voter.id)) >= 8) {
+        return `END Sorry you already completed your vote.`;
       }
 
       if (text === '') return this.sendFirstResponse();
